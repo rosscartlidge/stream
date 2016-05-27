@@ -4,7 +4,7 @@ import (
 	"flag"
 	"os"
 
-	"github.com/user/stream"
+	"github.com/rosscartlidge/stream"
 )
 
 var nRecords = flag.Int("n", 10, "Number of records to generate")
