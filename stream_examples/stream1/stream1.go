@@ -5,7 +5,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/rosscartlidge/stream"
+	stream "github.com/rosscartlidge/newstream"
 )
 
 var nRecords = flag.Int("n", 10, "Number of records to generate")
@@ -16,14 +16,14 @@ func main() {
 	// stream.StreamToCSV(os.Stdout, Expand()(JsonToStream(os.Stdin)))
 	rs := stream.Enumerate(0, *nRecords, func(i int) []stream.Record {
 		return []stream.Record{
-			stream.RecordMap{"i": stream.Int(i), "x": stream.Int(i + 2)},
-			stream.RecordMap{"i": stream.Int(i), "x": stream.Int(i - 1)},
+			{"i": stream.Int(i), "x": stream.Int(i + 2)},
+			{"i": stream.Int(i), "x": stream.Int(i - 1)},
 		}
 	})
 	rs1 := stream.Enumerate(*nRecords, *nRecords*2, func(i int) []stream.Record {
 		return []stream.Record{
-			stream.RecordMap{"i": stream.Int(i), "x": stream.Int(i + 2)},
-			stream.RecordMap{"i": stream.Int(i), "x": stream.Int(i - 1)},
+			{"i": stream.Int(i), "x": stream.Int(i + 2)},
+			{"i": stream.Int(i), "x": stream.Int(i - 1)},
 		}
 	})
 	rs = stream.Zip("", rs, rs1)
@@ -49,7 +49,21 @@ func main() {
 	go func() {
 		defer wg.Done()
 		stream.StreamToCSV(os.Stdout, stream.ChanToStream(tch))
+		/*
+		for r := range tch {
+			fmt.Println("XXX", r)
+		}
+		*/
 	}()
+	/*
+	for {
+		r, ok := gs()
+		if !ok {
+			break
+		}
+		fmt.Println(r)
+	}
+	*/
 	stream.StreamToCSV(os.Stdout, gs)
 	wg.Wait()
 	// StreamToJSON(os.Stdout, gs)

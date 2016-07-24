@@ -9,7 +9,6 @@ import (
 
 var nRecords = flag.Int("n", 10, "Number of records to generate")
 var expand = flag.Bool("expand", true, "Run Expand")
-var csv = flag.Bool("csv", false, "Output CSV")
 
 func main() {
 	flag.Parse()
@@ -24,9 +23,5 @@ func main() {
 		stream.Expand(),
 		stream.SortBy([]string{"i"}),
 	)(rs)
-	if *csv {
-		stream.StreamToCSV(os.Stdout, gs)
-	} else {
-		stream.StreamToJSON(os.Stdout, gs)
-	}
+	stream.StreamToJSON(os.Stdout, gs)
 }
