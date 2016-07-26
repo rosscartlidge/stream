@@ -9,7 +9,7 @@ import (
 
 var nRecords = flag.Int("n", 10, "Number of records to generate")
 var expand = flag.Bool("expand", true, "Run Expand")
-var csv = flag.Bool("csv", false, "Output CSV")
+var format = flag.String("format", "csv", "Output format")
 
 func main() {
 	flag.Parse()
@@ -21,12 +21,15 @@ func main() {
 	})
 	gs := stream.Pipe(
 		stream.GroupBy([]string{"i"}, stream.ASum("sumx", "", "x"), stream.ASum("sumi", "", "i")),
-		stream.Expand(),
+		// stream.Expand(),
 		stream.SortBy([]string{"i"}),
 	)(rs)
-	if *csv {
+	switch *format {
+	case "csv":
 		stream.StreamToCSV(os.Stdout, gs)
-	} else {
+	case "json":
 		stream.StreamToJSON(os.Stdout, gs)
+	case "gob":
+		stream.StreamToGob(os.Stdout, gs)
 	}
 }

@@ -36,16 +36,18 @@ func Flatten(r Record, sep string) []Record {
 			for {
 				if r, err := s(); err == nil {
 					if f != "" {
+						er := make(Record, len(r))
 						for fi := range r {
 							ef := []string{f}
 							if fi != "" {
 								ef = append(ef, fi)
 							}
-							r[strings.Join(ef, sep)] = r[fi]
-							delete(r, fi)
+							er[strings.Join(ef, sep)] = r[fi]
 						}
+						rs = append(rs, Flatten(er, sep)...)
+					} else {
+						rs = append(rs, Flatten(r, sep)...)
 					}
-					rs = append(rs, Flatten(r, sep)...)
 				} else {
 					break
 				}

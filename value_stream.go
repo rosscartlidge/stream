@@ -1,7 +1,9 @@
 package stream
 
 import (
+	"bytes"
 	"encoding/json"
+	"encoding/gob"
 	"fmt"
 )
 
@@ -31,6 +33,27 @@ func (s Stream) Stream() (Stream, error) {
 
 func (s Stream) MarshalJSON() ([]byte, error) {
 	return json.Marshal(StreamToRecords(s))
+}
+
+func (s Stream) GobEncode() ([]byte, error) {
+	var b bytes.Buffer
+	e := gob.NewEncoder(&b)
+	err := e.Encode(StreamToRecords(s))
+	if err != nil {
+		return nil, err
+	}
+	return b.Bytes(), nil
+}
+
+func (s *Stream) GobDecode(bs []byte)  error {
+	d := gob.NewDecoder(bytes.NewBuffer(bs))
+	var rs []Record
+	err := d.Decode(&rs)
+	if err != nil {
+		return err
+	}
+	*s = RecordsToStream(rs)
+	return nil
 }
 
 func GetStream(r Record, f string) Stream {
