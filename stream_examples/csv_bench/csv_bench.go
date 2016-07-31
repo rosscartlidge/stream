@@ -19,6 +19,8 @@ func main() {
 		rs = stream.JSONToStream(os.Stdin)
 	case "tsv":
 		rs = stream.TSVToStream(os.Stdin, ",")
+	case "gob":
+		rs = stream.GobToStream(os.Stdin)
 	}
 	gs := stream.Pipe(
 		stream.GroupBy([]string{"jupiter"}, stream.ACount("count", "")), stream.Expand(),

@@ -2,7 +2,7 @@ package stream
 
 func Go(f Filter) Filter {
 	return func(s Stream) Stream {
-		ch := make(chan Record)
+		ch := make(chan Record, 1000)
 		s = f(s)
 		go func() {
 			for {
@@ -17,7 +17,6 @@ func Go(f Filter) Filter {
 		return ChanToStream(ch)
 	}
 }
-
 
 func GoPipe(fs ...Filter) Filter {
 	switch l := len(fs); l {
