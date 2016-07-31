@@ -4,7 +4,7 @@ import (
 	"flag"
 	"os"
 
-	stream "github.com/rosscartlidge/newstream"
+	stream "github.com/rosscartlidge/stream"
 )
 
 var input = flag.String("input", "json", "Input Format")

@@ -1,8 +1,6 @@
 package stream
 
-import (
-	"errors"
-)
+import "errors"
 
 type Value interface {
 	Int() (int64, error)
@@ -73,8 +71,8 @@ func Tee(tch chan Record) Filter {
 }
 
 var (
-	EOS  = errors.New("EOS")
-	I = Update(func(r Record) Record {
+	EOS = errors.New("EOS")
+	I   = Update(func(r Record) Record {
 		return r
 	})
 )

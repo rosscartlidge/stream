@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	stream "github.com/rosscartlidge/newstream"
+	stream "github.com/rosscartlidge/stream"
 )
 
 var nRecords = flag.Int("n", 10, "Number of records to generate")
