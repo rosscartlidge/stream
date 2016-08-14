@@ -16,6 +16,8 @@ type Stream func() (Record, error)
 
 type Filter func(Stream) Stream
 
+type Gofilter func(out, in chan Record)
+
 func Update(f func(Record) Record) Filter {
 	return func(i Stream) Stream {
 		return func() (Record, error) {

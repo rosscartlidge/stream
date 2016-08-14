@@ -16,7 +16,7 @@ func main() {
 	var is stream.Stream
 	switch *ifmt {
 	case "csv":
-		is = stream.CSVToStream(os.Stdin)
+		is = stream.CSVToStreamCh(os.Stdin)
 	case "gob":
 		is = stream.GobToStream(os.Stdin)
 	case "json":
@@ -27,7 +27,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Unknown format", *ifmt)
 		os.Exit(2)
 	}
-	is = stream.Go(stream.I)(is)
+	// is = stream.Go(stream.I)(is)
 	switch *ofmt {
 	case "csv":
 		stream.StreamToCSV(os.Stdout, is)

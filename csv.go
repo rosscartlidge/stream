@@ -87,3 +87,27 @@ func CSVToStream(i io.Reader) Stream {
 		return r, nil
 	}
 }
+
+func CSVToStreamCh(i io.Reader) Stream {
+	ch := make(chan Record, 1000)
+	go func() {
+		r := csv.NewReader(i)
+		header, err := r.Read()
+		if err != nil {
+			close(ch)
+		}
+		for {
+			data, err := r.Read()
+			if err != nil {
+				break
+			}
+			r := make(Record)
+			for i, f := range header {
+				r[f] = String(data[i])
+			}
+			ch <- r
+		}
+		close(ch)
+	}()
+	return ChanToStream(ch)
+}
