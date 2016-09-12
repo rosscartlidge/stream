@@ -1,5 +1,7 @@
 package stream
 
+import "math"
+
 type aggregatorOps struct {
 	field   string
 	process func(Record)
@@ -51,6 +53,42 @@ func ASum(field, dst, src string) Aggregator {
 			func() {},
 			func() Stream {
 				return RecordsToStream([]Record{{dst: Int(s)}})
+			},
+		}
+	}
+}
+
+func AMin(field, dst, src string) Aggregator {
+	return func() aggregatorOps {
+		m := math.MaxInt64
+		return aggregatorOps{
+			field,
+			func(r Record) {
+				if v := GetInt(r, src); v < m {
+					m := v
+				}
+			},
+			func() {},
+			func() Stream {
+				return RecordsToStream([]Record{{dst: Int(m)}})
+			},
+		}
+	}
+}
+
+func AMax(field, dst, src string) Aggregator {
+	return func() aggregatorOps {
+		m := math.MinInt64
+		return aggregatorOps{
+			field,
+			func(r Record) {
+				if v := GetInt(r, src); v < m {
+					m := v
+				}
+			},
+			func() {},
+			func() Stream {
+				return RecordsToStream([]Record{{dst: Int(m)}})
 			},
 		}
 	}
