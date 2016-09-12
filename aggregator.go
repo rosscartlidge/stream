@@ -60,12 +60,12 @@ func ASum(field, dst, src string) Aggregator {
 
 func AMin(field, dst, src string) Aggregator {
 	return func() aggregatorOps {
-		m := math.MaxInt64
+		m := int64(math.MaxInt64)
 		return aggregatorOps{
 			field,
 			func(r Record) {
 				if v := GetInt(r, src); v < m {
-					m := v
+					m = v
 				}
 			},
 			func() {},
@@ -78,12 +78,12 @@ func AMin(field, dst, src string) Aggregator {
 
 func AMax(field, dst, src string) Aggregator {
 	return func() aggregatorOps {
-		m := math.MinInt64
+		m := int64(math.MinInt64)
 		return aggregatorOps{
 			field,
 			func(r Record) {
-				if v := GetInt(r, src); v < m {
-					m := v
+				if v := GetInt(r, src); v > m {
+					m = v
 				}
 			},
 			func() {},
