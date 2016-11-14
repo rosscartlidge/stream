@@ -23,7 +23,10 @@ func main() {
 		rs = stream.GobToStream(os.Stdin)
 	}
 	gs := stream.Pipe(
-		stream.GroupBy([]string{"jupiter"}, stream.ACount("count", "")), stream.Expand(),
+		stream.GofilterToFilter(
+			stream.GofilterGroupBy([]string{"jupiter"}, stream.ACount("count", "")),
+		),
+		stream.Expand(),
 		stream.SortBy([]string{"count"}),
 	)(rs)
 	stream.StreamToCSV(os.Stdout, gs)

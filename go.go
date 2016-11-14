@@ -1,9 +1,6 @@
 package stream
 
-import (
-	"fmt"
-	"os"
-)
+import "context"
 
 func Go(f Filter) Filter {
 	return func(s Stream) Stream {
@@ -38,7 +35,6 @@ func GoPipe(fs ...Filter) Filter {
 
 func GofilterToFilter(g Gofilter) Filter {
 	return func(i Stream) Stream {
-		fmt.Fprintln(os.Stderr, "make o,ich")
 		och := make(chan Record, 1000)
 		ich := make(chan Record, 1000)
 		go func() {
@@ -52,7 +48,7 @@ func GofilterToFilter(g Gofilter) Filter {
 			close(ich)
 		}()
 		go func() {
-			g(och, ich)
+			g(context.TODO(), och, ich)
 			close(och)
 		}()
 		return func() (Record, error) {
@@ -67,7 +63,7 @@ func GofilterToFilter(g Gofilter) Filter {
 func GofilterPipe(gfs ...Gofilter) Gofilter {
 	switch l := len(gfs); l {
 	case 0:
-		return func(och, ich chan Record) {
+		return func(ctx context.Context, och, ich chan Record) {
 			for r := range ich {
 				och <- r
 			}
@@ -75,14 +71,13 @@ func GofilterPipe(gfs ...Gofilter) Gofilter {
 	case 1:
 		return gfs[0]
 	default:
-		return func(och, ich chan Record) {
+		return func(ctx context.Context, och, ich chan Record) {
 			jch := make(chan Record, 1000)
-			fmt.Fprintln(os.Stderr, "make jch")
 			go func() {
-				gfs[0](jch, ich)
+				gfs[0](ctx, jch, ich)
 				close(jch)
 			}()
-			GofilterPipe(gfs[1:]...)(och, jch)
+			GofilterPipe(gfs[1:]...)(ctx, och, jch)
 		}
 	}
 }

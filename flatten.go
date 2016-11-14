@@ -1,6 +1,7 @@
 package stream
 
 import (
+	"context"
 	"strings"
 )
 
@@ -88,6 +89,16 @@ func Expand() Filter {
 					return r, nil
 				}
 				expanded = nil
+			}
+		}
+	}
+}
+
+func GofilterExpand() Gofilter {
+	return func(ctx context.Context, out, in chan Record) {
+		for r := range in {
+			for _, er := range Flatten(r, ".") {
+				out <- er
 			}
 		}
 	}

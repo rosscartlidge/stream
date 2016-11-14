@@ -1,6 +1,7 @@
 package stream
 
 import (
+	"context"
 	"sort"
 )
 
@@ -42,8 +43,35 @@ func Sort(less func(r1, r2 Record) bool) Filter {
 	}
 }
 
+func GofilterSort(less func(r1, r2 Record) bool) Gofilter {
+	return func(ctx context.Context, out, in chan Record) {
+		sortable := RecordSort{less: less}
+		for r := range in {
+			sortable.records = append(sortable.records, r)
+		}
+		sort.Sort(sortable)
+		for _, r := range sortable.records {
+			out <- r
+		}
+	}
+}
+
 func SortBy(keys []string) Filter {
 	return Sort(func(r1, r2 Record) bool {
+		for _, k := range keys {
+			v1 := GetInt(r1, k)
+			v2 := GetInt(r2, k)
+			if v1 == v2 {
+				continue
+			}
+			return v1 < v2
+		}
+		return false
+	})
+}
+
+func GofilterSortBy(keys []string) Gofilter {
+	return GofilterSort(func(r1, r2 Record) bool {
 		for _, k := range keys {
 			v1 := GetInt(r1, k)
 			v2 := GetInt(r2, k)

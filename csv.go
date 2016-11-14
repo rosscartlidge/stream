@@ -1,6 +1,7 @@
 package stream
 
 import (
+	"context"
 	"encoding/csv"
 	"io"
 	"sort"
@@ -65,6 +66,26 @@ func StreamToCSV(o io.Writer, i Stream) {
 	w.Flush()
 }
 
+func SinkToCSV(ctx context.Context, o io.Writer, in chan Record) {
+	var header []string
+	w := csv.NewWriter(o)
+	for r := range in {
+		if header == nil {
+			for f := range r {
+				header = append(header, f)
+			}
+			sort.Sort(sort.StringSlice(header))
+			w.Write(header)
+		}
+		var l []string
+		for _, f := range header {
+			l = append(l, GetString(r, f))
+		}
+		w.Write(l)
+	}
+	w.Flush()
+}
+
 func CSVToStream(i io.Reader) Stream {
 	r := csv.NewReader(i)
 	var header []string
@@ -88,25 +109,29 @@ func CSVToStream(i io.Reader) Stream {
 	}
 }
 
+func CSVToSource(ctx context.Context, out chan Record, i io.Reader) {
+	r := csv.NewReader(i)
+	header, err := r.Read()
+	if err != nil {
+		return
+	}
+	for {
+		data, err := r.Read()
+		if err != nil {
+			break
+		}
+		r := make(Record)
+		for i, f := range header {
+			r[f] = String(data[i])
+		}
+		out <- r
+	}
+}
+
 func CSVToStreamCh(i io.Reader) Stream {
 	ch := make(chan Record, 1000)
 	go func() {
-		r := csv.NewReader(i)
-		header, err := r.Read()
-		if err != nil {
-			close(ch)
-		}
-		for {
-			data, err := r.Read()
-			if err != nil {
-				break
-			}
-			r := make(Record)
-			for i, f := range header {
-				r[f] = String(data[i])
-			}
-			ch <- r
-		}
+		CSVToSource(context.TODO(), ch, i)
 		close(ch)
 	}()
 	return ChanToStream(ch)
