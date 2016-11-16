@@ -38,3 +38,11 @@ func ChanToStream(ch chan Record) Stream {
 		}
 	}
 }
+
+func MapToStream(m map[Value]Value, key, value string) Stream {
+	records := make([]Record, 0, len(m))
+	for k, v := range m {
+		records = append(records, Record{key: k, value: v})
+	}
+	return RecordsToStream(records)
+}
